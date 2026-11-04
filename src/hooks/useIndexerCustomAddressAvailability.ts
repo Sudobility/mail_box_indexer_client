@@ -60,13 +60,18 @@ export const useIndexerCustomAddressAvailability = (
     retry: false,
   });
 
+  // Depend on the stable `mutateAsync` reference, not the whole `mutation`
+  // object (whose identity changes on every pending/error transition) — otherwise
+  // `checkAvailability` changes identity each call and loops any effect that
+  // depends on it.
+  const { mutateAsync } = mutation;
   const checkAvailability = useCallback(
     async (
       name: string
     ): Promise<Optional<IndexerCustomAddressAvailabilityResponse>> => {
-      return await mutation.mutateAsync(name);
+      return await mutateAsync(name);
     },
-    [mutation]
+    [mutateAsync]
   );
 
   const isLoading = mutation.isPending;

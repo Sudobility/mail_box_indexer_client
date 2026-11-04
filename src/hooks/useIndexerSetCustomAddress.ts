@@ -66,15 +66,18 @@ export const useIndexerSetCustomAddress = (
     retry: false,
   });
 
+  // Depend on the stable `mutateAsync` reference, not the whole `mutation`
+  // object, so `setCustomAddress` keeps a stable identity across renders.
+  const { mutateAsync } = mutation;
   const setCustomAddress = useCallback(
     async (
       walletAddress: string,
       auth: IndexerUserAuth,
       address: string
     ): Promise<Optional<IndexerCustomAddressResponse>> => {
-      return await mutation.mutateAsync({ walletAddress, auth, address });
+      return await mutateAsync({ walletAddress, auth, address });
     },
-    [mutation]
+    [mutateAsync]
   );
 
   const isLoading = mutation.isPending;
