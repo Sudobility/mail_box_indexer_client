@@ -10,6 +10,8 @@ bun add @sudobility/indexer_client
 
 Peer dependencies: `react` (>=18), `@tanstack/react-query` (>=5), `@sudobility/di`, `@sudobility/types`, `@sudobility/mail_box_types`, `@sudobility/configs`.
 
+`@sudobility/*` packages are published to GitHub Packages. Consumers need an `.npmrc` with `@sudobility:registry=https://npm.pkg.github.com` and a GitHub token with `read:packages` (see `.npmrc` in this repo).
+
 ## Usage
 
 ```typescript
@@ -60,28 +62,32 @@ const { admin, graphql, webhook } = createIndexerHelpers(config, networkClient);
 
 | Export | Description |
 |--------|-------------|
-| `IndexerClient` | Core REST API client (~40 endpoints) |
+| `IndexerClient` | Core REST API client (all REST endpoints) |
 | `IndexerService` | Singleton with 5-min in-memory cache (public endpoints) |
-| `useIndexer*` hooks | 18 individual TanStack React Query hooks |
+| `useIndexer*` / `useWalletNames` / `useResolveNameToAddress` hooks | Per-endpoint TanStack React Query hooks |
 | `IndexerMockData` | Static mock factories for all response types |
 | `IndexerAdminHelper` | Admin API helper (campaigns, points, flags) |
 | `IndexerGraphQLHelper` | GraphQL query helper (mails, delegations, stats) |
 | `IndexerWebhookHelper` | Webhook processing helper |
 | `createAuthHeaders` | Build signature auth headers (`x-signature`, `x-message`, `x-signer`) |
+| `IndexerError` (+ subclasses) | Typed error hierarchy: `IndexerAuthError`, `IndexerNetworkError`, `IndexerValidationError`, `IndexerRateLimitError`, `IndexerServerError` |
 
 ## Development
 
 ```bash
 bun install
-bun run check-all          # lint + typecheck + test:run
-bun run build              # TypeScript compilation
-bun run test               # Vitest (watch mode)
-bun run test:run           # Single run
-bun run test:coverage      # Coverage (70% threshold)
-bun run test:integration   # Integration tests (requires live indexer)
+bun run check-all          # lint + typecheck + test:unit
+bun run verify             # check-all + build (run before publishing)
+bun run build              # tsc -p tsconfig.build.json, then scripts/fix-esm-imports.mjs
+bun run test:run           # Vitest single run (unit; test:unit is identical)
+bun run test:watch         # Vitest watch mode
+bun run test:coverage      # Coverage (v8, 70% threshold)
+bun run test:integration   # Integration tests (requires live indexer + .env.test)
 bun run typecheck          # tsc --noEmit
-bun run lint               # ESLint
+bun run lint               # ESLint (src/**/*.ts,tsx)
 ```
+
+> There is no `bun run test`; use `test:run` / `test:unit` / `test:watch`.
 
 ## Related Packages
 
